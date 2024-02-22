@@ -41,6 +41,11 @@
     </.button>
   </.form>
 
+  <.link  navigate={~p"/labelling"} >
+    <div class="link-button">Start Labelling -&gt</div>
+  </.link>
+  
+
   <div id="images" phx-update="stream">
     <div :for={{dom_id, image} <- @streams.images} id={dom_id}>
       <div
