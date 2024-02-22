@@ -21,8 +21,17 @@ defmodule LabelRealTimeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    live "/images", ImagesLive
-    live "/labelling", LabellingLive
+  end
+
+  # Place live views in unique live session with same authentication strategy
+  scope "/", LabelRealTimeWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :authenticated,
+      on_mount: [{LabelRealTimeWeb.UserAuth, :ensure_authenticated}] do
+      live "/images", ImagesLive
+      live "/labelling", LabellingLive
+    end
   end
 
   # Other scopes may use custom stacks.
