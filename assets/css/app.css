@@ -3,3 +3,163 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* General CSS */
+
+body {
+    @apply antialiased relative bg-slate-200 font-sans;
+}
+
+nav {
+    @apply py-3 px-6 flex justify-end;
+}
+
+nav ul {
+    @apply flex items-center justify-between gap-4;
+}
+
+nav ul li {
+    @apply text-base text-slate-700;
+}
+
+nav ul li a:hover {
+    @apply underline;
+}
+
+main {
+    @apply max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8;
+}
+
+h1 {
+    @apply text-center text-slate-900 font-extrabold text-3xl;
+}
+
+h2 {
+    @apply text-center text-slate-800 font-extrabold text-2xl;
+}
+
+h3 {
+    @apply text-center text-slate-800 font-bold text-xl;
+}
+
+/* Juggling */
+
+#juggling {
+    @apply mt-8 max-w-sm mx-auto;
+}
+#juggling img {
+    @apply border-2 border-slate-300;
+}
+#juggling input[type="number"] {
+    @apply w-1/4 rounded border border-slate-300 px-3 py-2 text-slate-700 focus:outline-none;
+}
+#juggling .footer {
+    @apply flex items-center mt-4 justify-between text-slate-700 text-lg;
+}
+#juggling .footer .filename {
+    @apply text-slate-800 tabular-nums;
+}
+#juggling .footer input[type="number"] {
+    @apply w-1/4 rounded border border-slate-300 px-3 py-2 text-slate-700 focus:outline-none;
+}
+#juggling .footer button {
+    @apply w-1/4 bg-transparent mx-1 py-1 px-4 border-slate-400 text-slate-700 border-2 rounded-lg shadow-sm transition ease-in-out duration-150 outline-none hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+#juggling .legend {
+    @apply text-center -mt-6 mb-6 text-lg font-medium text-slate-700;
+}
+
+/* File Uploads */
+
+#upload-images {
+    @apply mt-8 max-w-4xl mx-auto;
+}
+
+#upload-images form {
+    @apply bg-white px-8 py-6 mb-6 shadow rounded-lg mx-auto w-full max-w-xl;
+}
+
+#upload-images form input[type="text"] {
+    @apply mb-4 appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md transition duration-150 ease-in-out;
+}
+
+#upload-images form input[type="text"]:focus {
+    @apply outline-none ring ring-indigo-300 border-indigo-300;
+}
+
+#upload-images form button {
+    @apply mt-4 w-full py-2 px-4 border border-transparent font-medium rounded-md text-white bg-indigo-600 transition duration-150 ease-in-out hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-300;
+}
+
+#upload-images form .hint {
+    @apply my-4 text-slate-600 text-sm;
+}
+
+#upload-images form .drop {
+    @apply flex items-baseline justify-center space-x-1 my-2 p-4 border-2 border-dashed border-slate-300 rounded-md text-center text-slate-600;
+}
+
+#upload-images form .drop label {
+    @apply cursor-pointer font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500;
+}
+
+#upload-images form .drop p {
+    @apply text-sm text-slate-500;
+}
+
+#upload-images form .drop img {
+    @apply mx-auto h-12 w-12;
+}
+
+#upload-images form .entry {
+    @apply my-6 flex items-center justify-start space-x-6;
+}
+
+#upload-images form .entry img {
+    @apply w-32;
+}
+
+#upload-images form .entry .progress {
+    @apply w-full;
+}
+
+#upload-images form .entry .progress .value {
+    @apply text-left mb-2 text-xs font-semibold inline-block text-indigo-600;
+}
+
+#upload-images form .entry .progress .bar {
+    @apply flex h-2 overflow-hidden text-base bg-indigo-200 rounded-lg mb-4;
+}
+
+#upload-images form .entry .progress .bar>span {
+    @apply shadow-md bg-indigo-500;
+    transition: width 1s ease;
+}
+
+#upload-images form .entry a {
+    @apply text-3xl font-bold text-slate-700 hover:text-red-700 cursor-pointer;
+}
+
+#upload-images form .error {
+    @apply block text-rose-600 my-2 text-sm leading-6;
+}
+
+#upload-images #images {
+    @apply flex flex-wrap items-center justify-center sm:justify-start;
+}
+
+#upload-images #images div[id^=upload-images-] {
+    @apply inline-flex;
+}
+
+#upload-images #images .photo {
+    @apply text-center p-4 m-4 border-2 border-slate-300 rounded-xl;
+}
+
+#upload-images #images .photo img {
+    @apply h-64 sm:h-36 mx-auto object-fill;
+}
+
+#upload-images #images .photo .name {
+    @apply mt-2 text-base text-slate-600 font-medium;
+}

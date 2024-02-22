@@ -1,0 +1,61 @@
+<h1>What's On Your Desk?</h1>
+<div id="upload-images">
+  <.form for={@form} phx-submit="save" phx-change="validate">
+    <.input field={@form[:name]} placeholder="Image Set Name" />
+
+    <div class="hint">
+      Add up to <%= @uploads.photos.max_entries %> photos
+      (max <%= trunc(@uploads.photos.max_file_size / 1_000_000) %> MB each)
+    </div>
+
+    <div class="drop" phx-drop-target={@uploads.photos.ref}>
+      <.live_file_input upload={@uploads.photos} /> or drag and drop here
+    </div>
+
+    <.error :for={err <- upload_errors(@uploads.photos)}>
+      <%= Phoenix.Naming.humanize(err) %>
+    </.error>
+
+    <div :for={entry <- @uploads.photos.entries} class="entry">
+      <.live_img_preview entry={entry} />
+
+      <div class="progress">
+        <div class="value">
+          <%= entry.progress %>%
+        </div>
+        <div class="bar">
+          <span style={"width: #{entry.progress}%"}></span>
+        </div>
+        <.error :for={err <- upload_errors(@uploads.photos, entry)}>
+          <%= Phoenix.Naming.humanize(err) %>
+        </.error>
+      </div>
+
+      <a phx-click="cancel" phx-value-ref={entry.ref}>
+        &times;
+      </a>
+    </div>
+
+    <.button phx-disable-with="Uploading...">
+      Upload
+    </.button>
+  </.form>
+
+  <div id="images" phx-update="stream">
+    <div :for={{dom_id, image} <- @streams.images} id={dom_id}>
+      <div
+        :for={
+          {image_location, index} <-
+            Enum.with_index(image.image_locations)
+        }
+        class="photo"
+      >
+        <%!-- <pre><%= IO.inspect(image_location) %> </pre> --%>
+        <img src={image_location} />
+        <div class="name">
+          <%= image.name %> (<%= index + 1 %>)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

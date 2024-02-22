@@ -18,6 +18,8 @@ defmodule LabelRealTimeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/images", ImagesLive
+    live "/labelling", LabellingLive
   end
 
   # Other scopes may use custom stacks.
