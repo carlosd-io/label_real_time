@@ -1,0 +1,20 @@
+<h1>Browse Images and Start Labelling</h1>
+<div id="labelling" phx-window-keyup="update">
+  <div class="legend">
+    k = loop/pause, &larr; = previous, &rarr; = next
+  </div>
+
+  <img src={"#{Enum.at(@images, @current)}"} />
+
+  <div class="footer">
+    <div class="filename">
+      <%= Enum.at(@images, @current) %>
+    </div>
+
+    <input type="number" value={@current} phx-keyup="set-current" phx-key="Enter" />
+
+    <button phx-click="toggle-playing">
+      <%= if @is_playing, do: "Pause", else: "Loop" %>
+    </button>
+  </div>
+</div>

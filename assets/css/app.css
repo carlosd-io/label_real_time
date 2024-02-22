@@ -42,30 +42,30 @@ h3 {
     @apply text-center text-slate-800 font-bold text-xl;
 }
 
-/* Juggling */
+/* Labelling */
 
-#juggling {
+#labelling {
     @apply mt-8 max-w-sm mx-auto;
 }
-#juggling img {
+#labelling img {
     @apply border-2 border-slate-300;
 }
-#juggling input[type="number"] {
+#labelling input[type="number"] {
     @apply w-1/4 rounded border border-slate-300 px-3 py-2 text-slate-700 focus:outline-none;
 }
-#juggling .footer {
+#labelling .footer {
     @apply flex items-center mt-4 justify-between text-slate-700 text-lg;
 }
-#juggling .footer .filename {
+#labelling .footer .filename {
     @apply text-slate-800 tabular-nums;
 }
-#juggling .footer input[type="number"] {
+#labelling .footer input[type="number"] {
     @apply w-1/4 rounded border border-slate-300 px-3 py-2 text-slate-700 focus:outline-none;
 }
-#juggling .footer button {
+#labelling .footer button {
     @apply w-1/4 bg-transparent mx-1 py-1 px-4 border-slate-400 text-slate-700 border-2 rounded-lg shadow-sm transition ease-in-out duration-150 outline-none hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed;
 }
-#juggling .legend {
+#labelling .legend {
     @apply text-center -mt-6 mb-6 text-lg font-medium text-slate-700;
 }
 
