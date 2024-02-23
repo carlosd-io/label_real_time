@@ -1,7 +1,10 @@
+<h3>Current user: <%= @current_user.email %> </h3>
 <h1>Browse Images and Start Labelling or</h1>
 <.link navigate={~p"/images"}>
   <div class="link-button">&lt- Back to Upload</div>
 </.link>
+
+<br/>
 
 <div id="labelling" phx-window-keyup="update">
   <div class="legend">

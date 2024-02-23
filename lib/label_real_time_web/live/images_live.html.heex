@@ -1,4 +1,6 @@
+<h3>Current user: <%= @current_user.email %> </h3>
 <h1>Upload Image Sets</h1>
+
 <div id="upload-images">
   <.form for={@form} phx-submit="save" phx-change="validate">
     <.input field={@form[:name]} placeholder="Image Set Name" />
@@ -40,6 +42,8 @@
       Upload
     </.button>
   </.form>
+
+  <br/>
 
   <.link  navigate={~p"/labelling"} >
     <div class="link-button">Start Labelling -&gt</div>
