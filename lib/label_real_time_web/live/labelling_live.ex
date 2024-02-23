@@ -14,7 +14,7 @@ defmodule LabelRealTimeWeb.LabellingLive do
     #   |> Enum.map(&String.pad_leading("#{&1}", 2, "0"))
     #   |> Enum.map(&"juggling-#{&1}.jpg")
 
-    IO.inspect(images)
+    # IO.inspect(images)
 
     {:ok,
      assign(socket,
