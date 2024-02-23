@@ -1,6 +1,10 @@
 defmodule LabelRealTimeWeb.LabellingLive do
   use LabelRealTimeWeb, :live_view
+
   alias LabelRealTime.Images
+  alias LabelRealTimeWeb.Presence
+
+  @topic "cursorview"
 
   def mount(_params, _session, socket) do
     # Get all images from DB and make a list of images
@@ -26,25 +30,52 @@ defmodule LabelRealTimeWeb.LabellingLive do
       |> String.split("@")
       |> hd()
 
-    {:ok,
-     assign(socket,
-       images: images,
-       current: 0,
-       is_playing: false,
-       timer: nil,
-       x: 50,
-       y: 50,
-       user: user
-     )}
+    if connected?(socket) do
+      {:ok, _reference} =
+        Presence.track(self(), @topic, socket.id, %{
+          socket_id: socket.id,
+          x: 50,
+          y: 50,
+          name: user
+        })
+    end
+
+    Phoenix.PubSub.subscribe(LabelRealTime.PubSub, @topic)
+
+    # List of presences
+    initial_users =
+      Presence.list(@topic)
+      |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
+
+    # {:ok,
+    #  assign(socket,
+    #    images: images,
+    #    current: 0,
+    #    is_playing: false,
+    #    timer: nil,
+    #    x: 50,
+    #    y: 50,
+    #    user: user
+    #  )}
+
+    socket =
+      socket
+      |> assign(:images, images)
+      |> assign(:current, 0)
+      |> assign(:is_playing, false)
+      |> assign(:timer, nil)
+      |> assign(:user, user)
+      |> assign(:users, initial_users)
+      |> assign(:socket_id, socket.id)
+
+    {:ok, socket}
   end
 
   def handle_event("cursor-move", %{"x" => x, "y" => y}, socket) do
-    updated =
-      socket
-      |> assign(:x, x)
-      |> assign(:y, y)
-
-    {:noreply, updated}
+    key = socket.id
+    payload = %{x: x, y: y}
+    updatePresence(key, payload)
+    {:noreply, socket}
   end
 
   def handle_event("set-current", %{"key" => "Enter", "value" => value}, socket) do
@@ -75,6 +106,19 @@ defmodule LabelRealTimeWeb.LabellingLive do
     {:noreply, assign(socket, :current, next(socket))}
   end
 
+  def handle_info(%{event: "presence_diff", payload: _payload}, socket) do
+    users =
+      Presence.list(@topic)
+      |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
+
+    socket =
+      socket
+      |> assign(users: users)
+      |> assign(socket_id: socket.id)
+
+    {:noreply, socket}
+  end
+
   def toggle_playing(socket) do
     socket = update(socket, :is_playing, fn playing -> !playing end)
 
@@ -97,5 +141,14 @@ defmodule LabelRealTimeWeb.LabellingLive do
     %{current: current, images: images} = socket.assigns
 
     rem(current - 1 + Enum.count(images), Enum.count(images))
+  end
+
+  def updatePresence(key, payload) do
+    metas =
+      Presence.get_by_key(@topic, key)[:metas]
+      |> List.first()
+      |> Map.merge(payload)
+
+    Presence.update(self(), @topic, key, metas)
   end
 end
