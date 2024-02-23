@@ -21,6 +21,7 @@ defmodule LabelRealTimeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
   end
 
   # Place live views in unique live session with same authentication strategy
