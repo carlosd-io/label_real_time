@@ -12,6 +12,8 @@ defmodule LabelRealTime.Application do
       LabelRealTime.Repo,
       {DNSCluster, query: Application.get_env(:label_real_time, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LabelRealTime.PubSub},
+      # Start presence
+      LabelRealTimeWeb.Presence,
       # Start the Finch HTTP client for sending emails
       {Finch, name: LabelRealTime.Finch},
       # Start a worker by calling: LabelRealTime.Worker.start_link(arg)
