@@ -1,4 +1,4 @@
-<h3>Current user: <%= @current_user.email %> </h3>
+<h3>Current user: <%= @current_user.email %></h3>
 <h1>Upload Image Sets</h1>
 
 <div id="upload-images">
@@ -43,12 +43,11 @@
     </.button>
   </.form>
 
-  <br/>
+  <br />
 
-  <.link  navigate={~p"/labelling"} >
-    <div class="link-button">Start Labelling -&gt</div>
+  <.link navigate={~p"/labelling"}>
+    <div class="link-button">Start Labelling <.icon name="hero-arrow-right-circle" /></div>
   </.link>
-  
 
   <div id="images" phx-update="stream">
     <div :for={{dom_id, image} <- @streams.images} id={dom_id}>

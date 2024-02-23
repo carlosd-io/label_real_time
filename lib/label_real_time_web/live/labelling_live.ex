@@ -15,14 +15,36 @@ defmodule LabelRealTimeWeb.LabellingLive do
     #   |> Enum.map(&"juggling-#{&1}.jpg")
 
     # IO.inspect(images)
+    # IO.inspect(socket.assigns)
+    # IO.inspect(session)
+
+    # Get current user
+    %{current_user: current_user} = socket.assigns
+    # Split email to get username
+    user =
+      current_user.email
+      |> String.split("@")
+      |> hd()
 
     {:ok,
      assign(socket,
        images: images,
        current: 0,
        is_playing: false,
-       timer: nil
+       timer: nil,
+       x: 50,
+       y: 50,
+       user: user
      )}
+  end
+
+  def handle_event("cursor-move", %{"x" => x, "y" => y}, socket) do
+    updated =
+      socket
+      |> assign(:x, x)
+      |> assign(:y, y)
+
+    {:noreply, updated}
   end
 
   def handle_event("set-current", %{"key" => "Enter", "value" => value}, socket) do
