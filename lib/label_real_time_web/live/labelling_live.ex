@@ -3,6 +3,7 @@ defmodule LabelRealTimeWeb.LabellingLive do
 
   alias LabelRealTime.Images
   alias LabelRealTimeWeb.Presence
+  import LabelRealTime.Colors
 
   @topic "cursorview"
 
@@ -30,13 +31,17 @@ defmodule LabelRealTimeWeb.LabellingLive do
       |> String.split("@")
       |> hd()
 
+    # Make a random color for a given user
+    color = make_HSL_color(current_user.email)
+
     if connected?(socket) do
       {:ok, _reference} =
         Presence.track(self(), @topic, socket.id, %{
           socket_id: socket.id,
           x: 50,
           y: 50,
-          name: user
+          name: user,
+          color: color
         })
     end
 
