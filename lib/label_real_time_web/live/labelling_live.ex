@@ -3,6 +3,7 @@ defmodule LabelRealTimeWeb.LabellingLive do
 
   alias LabelRealTime.Images
   alias LabelRealTimeWeb.Presence
+  alias LabelRealTime.CircleDrawer
   import LabelRealTime.Colors
 
   @topic "cursorview"
@@ -25,7 +26,7 @@ defmodule LabelRealTimeWeb.LabellingLive do
 
     # Get current user
     %{current_user: current_user} = socket.assigns
-    # Split email to get username
+    # Split email from current_user to get username
     user =
       current_user.email
       |> String.split("@")
@@ -42,7 +43,8 @@ defmodule LabelRealTimeWeb.LabellingLive do
           y: 50,
           message: "",
           name: user,
-          color: color
+          color: color,
+          canvas: CircleDrawer.new_canvas()
         })
     end
 
@@ -73,8 +75,63 @@ defmodule LabelRealTimeWeb.LabellingLive do
       |> assign(:user, user)
       |> assign(:users, initial_users)
       |> assign(:socket_id, socket.id)
+      |> assign(:canvas, CircleDrawer.new_canvas())
 
     {:ok, socket}
+  end
+
+  def handle_event("save-img", _unsigned_params, socket) do
+    # Get X and Y coordinates from two circles drawn
+    my_x1 = Enum.at(socket.assigns.canvas.circles, 1).x |> trunc()
+    my_y1 = Enum.at(socket.assigns.canvas.circles, 1).y |> trunc()
+    my_x2 = Enum.at(socket.assigns.canvas.circles, 0).x |> trunc()
+    my_y2 = Enum.at(socket.assigns.canvas.circles, 0).y |> trunc()
+    # Get row and column ranges in a format required by Evision.Mat.roi()
+    row_range = {my_y1, my_y2}
+    column_range = {my_x1, my_x2}
+    # Inspect circles, coordinates, and ranges
+    IO.inspect(socket.assigns.canvas.circles, label: "My-circles:")
+    IO.inspect(my_x1, label: "My-X1:")
+    IO.inspect(my_y1, label: "My-Y1:")
+    IO.inspect(my_x2, label: "My-X2:")
+    IO.inspect(my_y2, label: "My-Y2:")
+    IO.inspect(row_range, label: "Row range:")
+    IO.inspect(column_range, label: "Column range:")
+
+    # Read image from file
+    dog_img = Evision.imread("priv/static/images/dog.jpeg")
+    IO.inspect(dog_img)
+
+    # select a roi, we can do it in several ways
+    # remember that ranges in Elixir are inclusive
+    # dog_roi = dog_img[[50..130, 80..150]]
+    # dog_roi = Evision.Mat.roi(dog_img, {my_x1, my_y1, 60, 60})
+    dog_roi = Evision.Mat.roi(dog_img, row_range, column_range)
+    IO.inspect(dog_roi)
+
+    # Write roi to file
+    # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
+    Evision.imwrite("priv/static/images/small_dog.jpeg", dog_roi)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("canvas-click", %{"x" => x, "y" => y}, socket) do
+    canvas = socket.assigns.canvas
+    key = socket.id
+    # payload = %{x: x, y: y}
+
+    circle = CircleDrawer.new_circle(x, y)
+    updated_canvas = CircleDrawer.add_circle(canvas, circle)
+
+    payload = %{canvas: updated_canvas}
+    updatePresence(key, payload)
+
+    socket =
+      socket
+      |> assign(:canvas, updated_canvas)
+
+    {:noreply, socket}
   end
 
   def handle_event("cursor-move", %{"x" => x, "y" => y}, socket) do

@@ -36,6 +36,27 @@ Hooks.TrackClientCursor = {
     }
 };
 
+Hooks.CircleDrawer = {
+    mounted() {
+      let svg = this.el;
+  
+      this.el.addEventListener("click", (e) => {
+        let pt = svg.createSVGPoint();
+  
+        // pass event coordinates
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+  
+        // transform to SVG coordinates
+        let svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+        let x = svgP.x;
+        let y = svgP.y;
+  
+        this.pushEvent("canvas-click", {x, y})
+      });
+    }
+};
+
 let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})
 
 // Show progress bar on live navigation and form submits

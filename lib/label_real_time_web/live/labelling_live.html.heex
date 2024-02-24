@@ -37,7 +37,25 @@
     k = loop/pause, &larr; = previous, &rarr; = next
   </div>
 
-  <img src={"#{Enum.at(@images, @current)}"} />
+  <%!-- <img src={"#{Enum.at(@images, @current)}"} /> --%>
+
+  <svg
+    id="circle-drawer"
+    phx-hook="CircleDrawer"
+    width="225"
+    height="224"
+    style="border: 1px solid blue"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <%!-- <image href={~p"/images/dog.jpeg"} x="0" y="0" height="224px" width="225px" /> --%>
+    <image href={"#{Enum.at(@images, @current)}"} x="0" y="0" height="224px" width="225px" />
+    <circle cx="40" cy="30" r="1" fill="purple" />
+    <%= for user <- @users do %>
+      <%= for %{x: x, y: y, r: r} <- user.canvas.circles do %>
+        <circle cx={x} cy={y} r={r} fill="#9F2B68" />
+      <% end %>
+    <% end %>
+  </svg>
 
   <div class="footer">
     <div class="filename">
@@ -52,7 +70,14 @@
   </div>
 </div>
 
+<br />
 
+<button
+  phx-click="save-img"
+  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+>
+  Button: Save Smaller Image
+</button>
 
 <ul class="list-none" id="cursors" phx-hook="TrackClientCursor">
   <%= for user <- @users do %>
