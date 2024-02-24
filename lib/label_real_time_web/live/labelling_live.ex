@@ -40,6 +40,7 @@ defmodule LabelRealTimeWeb.LabellingLive do
           socket_id: socket.id,
           x: 50,
           y: 50,
+          message: "",
           name: user,
           color: color
         })
@@ -80,6 +81,26 @@ defmodule LabelRealTimeWeb.LabellingLive do
     key = socket.id
     payload = %{x: x, y: y}
     updatePresence(key, payload)
+    {:noreply, socket}
+  end
+
+  def handle_event("send_message", %{"message" => message}, socket) do
+    # IO.inspect(socket.assigns)
+
+    # # Read image from file
+    # dog_img = Evision.imread("priv/static/images/dog.jpeg")
+    # # Inspect dog_img
+    # IO.inspect(dog_img)
+
+    # # select a roi
+    # dog_roi = dog_img[[50..130, 80..150]]
+    # # Inspect roi
+    # IO.inspect(dog_roi)
+
+    # # Write roi to file
+    # Evision.imwrite("priv/static/images/small_dog.jpeg", dog_roi)
+
+    updatePresence(socket.id, %{message: message})
     {:noreply, socket}
   end
 

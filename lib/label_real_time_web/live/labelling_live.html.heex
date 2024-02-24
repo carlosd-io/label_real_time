@@ -1,14 +1,37 @@
-<h3>Current user: <%= @current_user.email %></h3>
+<%!-- <h3>Current user: <%= @current_user.email %></h3> --%>
 <h1>Browse Images and Start Labelling or</h1>
-<pre>
-  <%= inspect(@users, pretty: true) %>
-</pre>
+<%!-- <pre><%= inspect(@users, pretty: true) %></pre> --%>
 
 <.link navigate={~p"/images"}>
   <div class="link-button"><.icon name="hero-arrow-left-circle" /> Back to Upload</div>
 </.link>
 
 <br />
+
+<form
+  id="msgform"
+  phx-submit="send_message"
+  class="rounded-xl bg-gradient-to-r to-pink-100 from-pink-50 p-8 drop-shadow-xl flex w-xs mx-auto space-x-3"
+>
+  <input
+    class="flex-1 appearance-none border border-transparent py-2 px-4 bg-white text-gray-600 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent"
+    maxlength="30"
+    aria-label="Your message"
+    type="text"
+    id="message"
+    name="message"
+    placeholder="Enter message"
+  />
+  <input
+    id="submit-msg"
+    type="submit"
+    class="flex-shrink-0 bg-pink-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-pink-200"
+    value="Send"
+  />
+</form>
+
+<br />
+
 <div id="labelling" phx-window-keyup="update">
   <div class="legend">
     k = loop/pause, &larr; = previous, &rarr; = next
@@ -29,6 +52,8 @@
   </div>
 </div>
 
+
+
 <ul class="list-none" id="cursors" phx-hook="TrackClientCursor">
   <%= for user <- @users do %>
     <li
@@ -46,8 +71,17 @@
         <polygon fill="black" points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6" />
         <polygon fill="currentColor" points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5" />
       </svg>
-      <span style={"background-color: #{user.color};"} class="mt-1 ml-4 px-1 text-sm text-white w-fit">
+      <span
+        style={"background-color: #{user.color};"}
+        class="mt-1 ml-4 px-1 text-sm text-white w-fit"
+      >
         <%= user.name %>
+      </span>
+      <span
+        style={"background-color: #{user.color};"}
+        class="text-green-50 mt-1 py-0 px-1 text-sm text-left rounded-br-md opacity-80 fit-content"
+      >
+        <%= user.message %>
       </span>
     </li>
   <% end %>
