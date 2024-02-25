@@ -41,7 +41,7 @@ defmodule LabelRealTimeWeb.ImagesLive do
     # copy temp file to priv/static/uploads/photoname-1.png
     # URL path: /uploads/photoname-1.png
     # Notice that the Plug.Static plug in endpoint.ex is not configured to get the
-    # uploads folder to serve images. I had to add uploads to the
+    # uploads folder to serve images. I had to add 'uploads' to the
     # static_paths() function in label_real_time_web.ex
 
     image_locations =
@@ -54,11 +54,13 @@ defmodule LabelRealTimeWeb.ImagesLive do
             "#{entry.uuid}-#{entry.client_name}"
           ])
 
+        # Make directory to store images
         File.mkdir_p!(Path.dirname(dest))
-
+        # Copy image in temp file to destination directory
         File.cp!(meta.path, dest)
-
+        # Make url path to uploaded image, something like: "/uploads/f94d4e7d-9405-4edc-8312-6adf17f49d94-2.jpg"
         url_path = static_path(socket, "/uploads/#{Path.basename(dest)}")
+        # IO.inspect(url_path, label: "URL_PATH")
 
         {:ok, url_path}
       end)

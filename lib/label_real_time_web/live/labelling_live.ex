@@ -81,6 +81,8 @@ defmodule LabelRealTimeWeb.LabellingLive do
   end
 
   def handle_event("save-img", _unsigned_params, socket) do
+    # Inspect socket
+    IO.inspect(socket, label: "socket values")
     # Get X and Y coordinates from two circles drawn
     my_x1 = Enum.at(socket.assigns.canvas.circles, 1).x |> trunc()
     my_y1 = Enum.at(socket.assigns.canvas.circles, 1).y |> trunc()
@@ -89,29 +91,35 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # Get row and column ranges in a format required by Evision.Mat.roi()
     row_range = {my_y1, my_y2}
     column_range = {my_x1, my_x2}
+
     # Inspect circles, coordinates, and ranges
-    IO.inspect(socket.assigns.canvas.circles, label: "My-circles:")
-    IO.inspect(my_x1, label: "My-X1:")
-    IO.inspect(my_y1, label: "My-Y1:")
-    IO.inspect(my_x2, label: "My-X2:")
-    IO.inspect(my_y2, label: "My-Y2:")
-    IO.inspect(row_range, label: "Row range:")
-    IO.inspect(column_range, label: "Column range:")
+    # IO.inspect(socket.assigns.canvas.circles, label: "My-circles:")
+    # IO.inspect(my_x1, label: "My-X1:")
+    # IO.inspect(my_y1, label: "My-Y1:")
+    # IO.inspect(my_x2, label: "My-X2:")
+    # IO.inspect(my_y2, label: "My-Y2:")
+    # IO.inspect(row_range, label: "Row range:")
+    # IO.inspect(column_range, label: "Column range:")
 
     # Read image from file
-    dog_img = Evision.imread("priv/static/images/dog.jpeg")
-    IO.inspect(dog_img)
+    images = socket.assigns.images
+    {image_url, _} = List.pop_at(images, socket.assigns.current)
+    # IO.inspect(image_url, label: "Image_URL:")
+
+    # Read current image
+    current_image = Evision.imread("priv/static" <> image_url)
+    # IO.inspect(current_image)
 
     # select a roi, we can do it in several ways
     # remember that ranges in Elixir are inclusive
-    # dog_roi = dog_img[[50..130, 80..150]]
-    # dog_roi = Evision.Mat.roi(dog_img, {my_x1, my_y1, 60, 60})
-    dog_roi = Evision.Mat.roi(dog_img, row_range, column_range)
-    IO.inspect(dog_roi)
+    # dog_roi = current_image[[50..130, 80..150]]
+    # dog_roi = Evision.Mat.roi(current_image, {my_x1, my_y1, 60, 60})
+    image_roi = Evision.Mat.roi(current_image, row_range, column_range)
+    # IO.inspect(dog_roi)
 
     # Write roi to file
     # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
-    Evision.imwrite("priv/static/images/small_dog.jpeg", dog_roi)
+    Evision.imwrite("priv/static/images/small_dog.jpeg", image_roi)
 
     {:noreply, socket}
   end
@@ -145,12 +153,12 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # IO.inspect(socket.assigns)
 
     # # Read image from file
-    # dog_img = Evision.imread("priv/static/images/dog.jpeg")
-    # # Inspect dog_img
-    # IO.inspect(dog_img)
+    # current_image = Evision.imread("priv/static/images/dog.jpeg")
+    # # Inspect current_image
+    # IO.inspect(current_image)
 
     # # select a roi
-    # dog_roi = dog_img[[50..130, 80..150]]
+    # dog_roi = current_image[[50..130, 80..150]]
     # # Inspect roi
     # IO.inspect(dog_roi)
 
