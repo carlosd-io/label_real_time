@@ -17,6 +17,11 @@ defmodule LabelRealTimeWeb.LabellingLive do
       |> Enum.map(fn image -> image.image_locations end)
       |> List.flatten()
 
+    # Get all subimages from DB, create changeset, and create form
+    # subimages = Subimages.list_subimages()
+    subimage_changeset = Subimages.change_subimage(%Subimage{})
+    subimage_form = to_form(subimage_changeset)
+
     # img =
     #   0..18
     #   |> Enum.map(&String.pad_leading("#{&1}", 2, "0"))
@@ -24,21 +29,14 @@ defmodule LabelRealTimeWeb.LabellingLive do
 
     # IO.inspect(images)
     # IO.inspect(socket.assigns)
-    # IO.inspect(session)
 
-    # Get current user
+    # Get logged-in user from assigns and
+    # obtain username and its color from email
     %{current_user: current_user} = socket.assigns
-    # Split email from current_user to get username
-    user =
-      current_user.email
-      |> String.split("@")
-      |> hd()
-
-    # Make a random color for a given user
+    username = current_user.email |> String.split("@") |> hd()
     color = make_HSL_color(current_user.email)
 
-    subimage_changeset = Subimages.change_subimage(%Subimage{})
-
+    # When liveview is connected, declare presences
     if connected?(socket) do
       {:ok, _reference} =
         Presence.track(self(), @topic, socket.id, %{
@@ -46,7 +44,7 @@ defmodule LabelRealTimeWeb.LabellingLive do
           x: 50,
           y: 50,
           message: "",
-          name: user,
+          username: username,
           color: color,
           canvas: CircleDrawer.new_canvas()
         })
@@ -55,19 +53,19 @@ defmodule LabelRealTimeWeb.LabellingLive do
     Phoenix.PubSub.subscribe(LabelRealTime.PubSub, @topic)
 
     # List of presences
-    initial_users =
+    presences =
       Presence.list(@topic)
       |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
 
     socket =
       socket
       |> assign(:images, images)
-      |> assign(:subimage_form, to_form(subimage_changeset))
+      |> assign(:subimage_form, subimage_form)
       |> assign(:current, 0)
       |> assign(:is_playing, false)
       |> assign(:timer, nil)
-      |> assign(:user, user)
-      |> assign(:users, initial_users)
+      |> assign(:username, username)
+      |> assign(:presences, presences)
       |> assign(:socket_id, socket.id)
       |> assign(:canvas, CircleDrawer.new_canvas())
 
@@ -193,13 +191,13 @@ defmodule LabelRealTimeWeb.LabellingLive do
   end
 
   def handle_info(%{event: "presence_diff", payload: _payload}, socket) do
-    users =
+    presences =
       Presence.list(@topic)
       |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
 
     socket =
       socket
-      |> assign(users: users)
+      |> assign(presences: presences)
       |> assign(socket_id: socket.id)
 
     {:noreply, socket}

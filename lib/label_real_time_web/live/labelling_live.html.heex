@@ -1,6 +1,6 @@
 <%!-- <h3>Current user: <%= @current_user.email %></h3> --%>
 <h1>Browse Images and Start Labelling or</h1>
-<%!-- <pre><%= inspect(@users, pretty: true) %></pre> --%>
+<%!-- <pre><%= inspect(@presences, pretty: true) %></pre> --%>
 <%!-- <pre><%= inspect(@subimage_form, pretty: true) %></pre> --%>
 
 <.link navigate={~p"/images"}>
@@ -51,8 +51,8 @@
     <%!-- <image href={~p"/images/dog.jpeg"} x="0" y="0" height="224px" width="225px" /> --%>
     <image href={"#{Enum.at(@images, @current)}"} x="0" y="0" height="224px" width="225px" />
     <circle cx="40" cy="30" r="1" fill="purple" />
-    <%= for user <- @users do %>
-      <%= for %{x: x, y: y, r: r} <- user.canvas.circles do %>
+    <%= for presence <- @presences do %>
+      <%= for %{x: x, y: y, r: r} <- presence.canvas.circles do %>
         <circle cx={x} cy={y} r={r} fill="#9F2B68" />
       <% end %>
     <% end %>
@@ -74,7 +74,7 @@
 <br />
 
 <.form for={@subimage_form} phx-submit="save-image">
-  <label for="subimage-input">Hi <%= @user %>, enter label</label>
+  <label for="subimage-input">Hi <%= @username %>, enter label</label>
   <.input
     id="subimage-input"
     field={@subimage_form[:label]}
@@ -92,9 +92,9 @@
 </button> --%>
 
 <ul class="list-none" id="cursors" phx-hook="TrackClientCursor">
-  <%= for user <- @users do %>
+  <%= for presence <- @presences do %>
     <li
-      style={"color: #{user.color}; left: #{user.x}%; top: #{user.y}%"}
+      style={"color: #{presence.color}; left: #{presence.x}%; top: #{presence.y}%"}
       class="flex flex-col absolute pointer-events-none whitespace-nowrap overflow-hidden"
     >
       <svg
@@ -109,16 +109,16 @@
         <polygon fill="currentColor" points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5" />
       </svg>
       <span
-        style={"background-color: #{user.color};"}
+        style={"background-color: #{presence.color};"}
         class="mt-1 ml-4 px-1 text-sm text-white w-fit"
       >
-        <%= user.name %>
+        <%= presence.username %>
       </span>
       <span
-        style={"background-color: #{user.color};"}
+        style={"background-color: #{presence.color};"}
         class="text-green-50 mt-1 py-0 px-1 text-sm text-left rounded-br-md opacity-80 fit-content"
       >
-        <%= user.message %>
+        <%= presence.message %>
       </span>
     </li>
   <% end %>
