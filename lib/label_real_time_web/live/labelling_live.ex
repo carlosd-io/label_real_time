@@ -11,11 +11,30 @@ defmodule LabelRealTimeWeb.LabellingLive do
   @topic "cursorview"
 
   def mount(_params, _session, socket) do
-    # Get all images from DB and make a list of images
+    # Get all images from DB
+    images_records = Images.list_images()
+    # Make a list of images from records
     images =
-      Images.list_images()
+      images_records
       |> Enum.map(fn image -> image.image_locations end)
       |> List.flatten()
+
+    # Get name field of images record
+    images_dataset_name =
+      images_records
+      |> Enum.map(fn image -> image.name end)
+      |> List.flatten()
+      |> hd()
+
+    # Get date timestamp from images record
+    d =
+      images_records
+      |> Enum.map(fn image -> image.inserted_at end)
+      |> List.flatten()
+      |> hd()
+
+    image_time_stamp = "#{d.year}-#{d.month}-#{d.day}-#{d.hour}-#{d.minute}-#{d.second}"
+    IO.inspect(image_time_stamp, label: "IMAGE_TIME_STAMP:")
 
     # Get all subimages from DB, create changeset, and create form
     # subimages = Subimages.list_subimages()
@@ -60,6 +79,8 @@ defmodule LabelRealTimeWeb.LabellingLive do
     socket =
       socket
       |> assign(:images, images)
+      |> assign(:image_time_stamp, image_time_stamp)
+      |> assign(:images_dataset_name, images_dataset_name)
       |> assign(:subimage_form, subimage_form)
       |> assign(:current, 0)
       |> assign(:is_playing, false)
@@ -107,12 +128,32 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # TODO:
     # I need to create an url, subimage_url, to add it to subimage_params and then store it in DB
     # Something like this:
-    altered_params = Map.put(subimage_params, "subimage_location", "new location")
+    # IO.inspect(socket, label: "SOCKET:")
+
+    subimage_url =
+      "/datasets/#{socket.assigns.images_dataset_name}/#{subimage_params["label"]}/#{socket.assigns.image_time_stamp}-#{subimage_params["label"]}.jpeg"
+
+    IO.inspect(subimage_url, label: "SUBIMAGE_URL")
+    altered_params = Map.put(subimage_params, "subimage_location", subimage_url)
     IO.inspect(altered_params, label: "ALTERED PARAMS:")
+
+    dest =
+      Path.join([
+        "priv",
+        "static",
+        "datasets",
+        "#{socket.assigns.images_dataset_name}",
+        "#{subimage_params["label"]}",
+        "#{socket.assigns.image_time_stamp}"
+      ])
+
+    # Make directory to store images
+    File.mkdir_p!(Path.dirname(dest))
 
     # Write roi to file
     # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
-    Evision.imwrite("priv/static/images/small_dog.jpeg", image_roi)
+    # Evision.imwrite("priv/static/images/small_dog.jpeg", image_roi)
+    Evision.imwrite("priv/static" <> subimage_url, image_roi)
 
     {:noreply, socket}
   end
