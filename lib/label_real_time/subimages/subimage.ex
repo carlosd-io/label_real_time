@@ -14,6 +14,8 @@ defmodule LabelRealTime.Subimages.Subimage do
   def changeset(subimage, attrs) do
     subimage
     |> cast(attrs, [:label, :subimage_location, :is_labelled])
-    |> validate_required([:label, :subimage_location, :is_labelled])
+    # |> validate_required([:label, :subimage_location, :is_labelled])
+    # |> validate_required([:label, :subimage_location])
+    |> validate_required([:label])
   end
 end

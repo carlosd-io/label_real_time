@@ -1,6 +1,7 @@
 <%!-- <h3>Current user: <%= @current_user.email %></h3> --%>
 <h1>Browse Images and Start Labelling or</h1>
 <%!-- <pre><%= inspect(@users, pretty: true) %></pre> --%>
+<%!-- <pre><%= inspect(@subimage_form, pretty: true) %></pre> --%>
 
 <.link navigate={~p"/images"}>
   <div class="link-button"><.icon name="hero-arrow-left-circle" /> Back to Upload</div>
@@ -72,12 +73,23 @@
 
 <br />
 
-<button
+<.form for={@subimage_form} phx-submit="save-image">
+  <label for="subimage-input">Hi <%= @user %>, enter label</label>
+  <.input
+    id="subimage-input"
+    field={@subimage_form[:label]}
+    placeholder="Label"
+    autocomplete="off"
+  />
+  <.button phx-disable-with="Saving image ...">Save labelled image</.button>
+</.form>
+
+<%!-- <button
   phx-click="save-img"
   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
 >
   Button: Save Smaller Image
-</button>
+</button> --%>
 
 <ul class="list-none" id="cursors" phx-hook="TrackClientCursor">
   <%= for user <- @users do %>

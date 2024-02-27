@@ -4,6 +4,8 @@ defmodule LabelRealTimeWeb.LabellingLive do
   alias LabelRealTime.Images
   alias LabelRealTimeWeb.Presence
   alias LabelRealTime.CircleDrawer
+  alias LabelRealTime.Subimages.Subimage
+  alias LabelRealTime.Subimages
   import LabelRealTime.Colors
 
   @topic "cursorview"
@@ -35,6 +37,8 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # Make a random color for a given user
     color = make_HSL_color(current_user.email)
 
+    subimage_changeset = Subimages.change_subimage(%Subimage{})
+
     if connected?(socket) do
       {:ok, _reference} =
         Presence.track(self(), @topic, socket.id, %{
@@ -55,20 +59,10 @@ defmodule LabelRealTimeWeb.LabellingLive do
       Presence.list(@topic)
       |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
 
-    # {:ok,
-    #  assign(socket,
-    #    images: images,
-    #    current: 0,
-    #    is_playing: false,
-    #    timer: nil,
-    #    x: 50,
-    #    y: 50,
-    #    user: user
-    #  )}
-
     socket =
       socket
       |> assign(:images, images)
+      |> assign(:subimage_form, to_form(subimage_changeset))
       |> assign(:current, 0)
       |> assign(:is_playing, false)
       |> assign(:timer, nil)
@@ -80,9 +74,13 @@ defmodule LabelRealTimeWeb.LabellingLive do
     {:ok, socket}
   end
 
-  def handle_event("save-img", _unsigned_params, socket) do
+  def handle_event("save-image", %{"subimage" => subimage_params}, socket) do
     # Inspect socket
-    IO.inspect(socket, label: "socket values")
+    # IO.inspect(socket, label: "socket values")
+
+    # subimage_params should be something like: %{"label" => "Label 1"}
+    IO.inspect(subimage_params, label: "SUBIMAGE PARAMS:")
+
     # Get X and Y coordinates from two circles drawn
     my_x1 = Enum.at(socket.assigns.canvas.circles, 1).x |> trunc()
     my_y1 = Enum.at(socket.assigns.canvas.circles, 1).y |> trunc()
@@ -91,15 +89,6 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # Get row and column ranges in a format required by Evision.Mat.roi()
     row_range = {my_y1, my_y2}
     column_range = {my_x1, my_x2}
-
-    # Inspect circles, coordinates, and ranges
-    # IO.inspect(socket.assigns.canvas.circles, label: "My-circles:")
-    # IO.inspect(my_x1, label: "My-X1:")
-    # IO.inspect(my_y1, label: "My-Y1:")
-    # IO.inspect(my_x2, label: "My-X2:")
-    # IO.inspect(my_y2, label: "My-Y2:")
-    # IO.inspect(row_range, label: "Row range:")
-    # IO.inspect(column_range, label: "Column range:")
 
     # Read image from file
     images = socket.assigns.images
@@ -116,6 +105,12 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # dog_roi = Evision.Mat.roi(current_image, {my_x1, my_y1, 60, 60})
     image_roi = Evision.Mat.roi(current_image, row_range, column_range)
     # IO.inspect(dog_roi)
+
+    # TODO:
+    # I need to create an url, subimage_url, to add it to subimage_params and then store it in DB
+    # Something like this:
+    altered_params = Map.put(subimage_params, "subimage_location", "new location")
+    IO.inspect(altered_params, label: "ALTERED PARAMS:")
 
     # Write roi to file
     # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
