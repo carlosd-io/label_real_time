@@ -60,7 +60,8 @@
 
   <div class="footer">
     <div class="filename">
-      <%= Enum.at(@images, @current) %>
+      <%!-- <%= Enum.at(@images, @current) %> --%>
+      <%= Enum.at(@images, @current) |> String.split("/") |> List.last() %>
     </div>
 
     <input type="number" value={@current} phx-keyup="set-current" phx-key="Enter" />
@@ -84,12 +85,9 @@
   <.button phx-disable-with="Saving image ...">Save labelled image</.button>
 </.form>
 
-<%!-- <button
-  phx-click="save-img"
-  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
->
-  Button: Save Smaller Image
-</button> --%>
+<.link navigate={~p"/labelling"}>
+  <div class="success-button" :if={@is_labelled} phx-click="success-close" >Saved successfully! &times</div>
+</.link>
 
 <ul class="list-none" id="cursors" phx-hook="TrackClientCursor">
   <%= for presence <- @presences do %>

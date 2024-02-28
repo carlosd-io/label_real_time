@@ -46,18 +46,24 @@ defmodule LabelRealTimeWeb.ImagesLive do
 
     image_locations =
       consume_uploaded_entries(socket, :photos, fn meta, entry ->
+        # Create timestamp
+        d = DateTime.utc_now()
+        image_time_stamp = "#{d.year}-#{d.month}-#{d.day}-#{d.hour}-#{d.minute}-#{d.second}"
+
         dest =
           Path.join([
             "priv",
             "static",
             "uploads",
-            "#{entry.uuid}-#{entry.client_name}"
+            # "#{entry.uuid}-#{entry.client_name}"
+            "img-#{image_time_stamp}-#{entry.client_name}"
           ])
 
         # Make directory to store images
         File.mkdir_p!(Path.dirname(dest))
         # Copy image in temp file to destination directory
         File.cp!(meta.path, dest)
+
         # Make url path to uploaded image, something like: "/uploads/f94d4e7d-9405-4edc-8312-6adf17f49d94-2.jpg"
         url_path = static_path(socket, "/uploads/#{Path.basename(dest)}")
         # IO.inspect(url_path, label: "URL_PATH")

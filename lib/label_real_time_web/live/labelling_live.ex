@@ -26,18 +26,13 @@ defmodule LabelRealTimeWeb.LabellingLive do
       |> List.flatten()
       |> hd()
 
-    # Get date timestamp from images record
-    d =
-      images_records
-      |> Enum.map(fn image -> image.inserted_at end)
-      |> List.flatten()
-      |> hd()
-
+    # Create timestamp
+    d = DateTime.utc_now()
     image_time_stamp = "#{d.year}-#{d.month}-#{d.day}-#{d.hour}-#{d.minute}-#{d.second}"
     IO.inspect(image_time_stamp, label: "IMAGE_TIME_STAMP:")
 
     # Get all subimages from DB, create changeset, and create form
-    # subimages = Subimages.list_subimages()
+    subimages = Subimages.list_subimages()
     subimage_changeset = Subimages.change_subimage(%Subimage{})
     subimage_form = to_form(subimage_changeset)
 
@@ -79,12 +74,14 @@ defmodule LabelRealTimeWeb.LabellingLive do
     socket =
       socket
       |> assign(:images, images)
+      |> assign(:subimages, subimages)
       |> assign(:image_time_stamp, image_time_stamp)
       |> assign(:images_dataset_name, images_dataset_name)
       |> assign(:subimage_form, subimage_form)
       |> assign(:current, 0)
       |> assign(:is_playing, false)
       |> assign(:timer, nil)
+      |> assign(:is_labelled, false)
       |> assign(:username, username)
       |> assign(:presences, presences)
       |> assign(:socket_id, socket.id)
@@ -130,32 +127,70 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # Something like this:
     # IO.inspect(socket, label: "SOCKET:")
 
+    # Create an url, for a subimage file, to add to subimage_params, and for DB field
     subimage_url =
-      "/datasets/#{socket.assigns.images_dataset_name}/#{subimage_params["label"]}/#{socket.assigns.image_time_stamp}-#{subimage_params["label"]}.jpeg"
-
-    IO.inspect(subimage_url, label: "SUBIMAGE_URL")
-    altered_params = Map.put(subimage_params, "subimage_location", subimage_url)
-    IO.inspect(altered_params, label: "ALTERED PARAMS:")
-
-    dest =
       Path.join([
-        "priv",
-        "static",
-        "datasets",
+        "/datasets",
         "#{socket.assigns.images_dataset_name}",
         "#{subimage_params["label"]}",
-        "#{socket.assigns.image_time_stamp}"
+        "#{socket.assigns.image_time_stamp}-#{subimage_params["label"]}.jpeg"
       ])
 
-    # Make directory to store images
-    File.mkdir_p!(Path.dirname(dest))
+    IO.inspect(subimage_url, label: "SUBIMAGE_URL")
+    subimage_params = Map.put(subimage_params, "subimage_location", subimage_url)
+    IO.inspect(subimage_params, label: "ALTERED PARAMS:")
 
-    # Write roi to file
-    # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
-    # Evision.imwrite("priv/static/images/small_dog.jpeg", image_roi)
-    Evision.imwrite("priv/static" <> subimage_url, image_roi)
+    # Update timestamp in socket
+    d = DateTime.utc_now()
+    image_time_stamp = "#{d.year}-#{d.month}-#{d.day}-#{d.hour}-#{d.minute}-#{d.second}"
+    socket = assign(socket, :image_time_stamp, image_time_stamp)
 
-    {:noreply, socket}
+    # Create subimage record in DB. If it succeeds, write subimage to a file
+    case Subimages.create_subimage(subimage_params) do
+      {:ok, subimage} ->
+        # Add subimage to subimages list
+        socket =
+          update(
+            socket,
+            :subimages,
+            fn subimages -> [subimage | subimages] end
+          )
+
+        # Create path to make directory for saving subimages
+        dest =
+          Path.join([
+            "priv",
+            "static",
+            "datasets",
+            "#{socket.assigns.images_dataset_name}",
+            "#{subimage_params["label"]}",
+            "#{socket.assigns.image_time_stamp}"
+          ])
+
+        # Make directory to store images
+        File.mkdir_p!(Path.dirname(dest))
+
+        # Write roi to file
+        # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
+        # Evision.imwrite("priv/static/images/small_dog.jpeg", image_roi)
+        Evision.imwrite("priv/static" <> subimage_url, image_roi)
+
+        changeset = Subimages.change_subimage(%Subimage{})
+
+        socket =
+          socket
+          |> assign(:form, to_form(changeset))
+          |> assign(:is_labelled, true)
+
+        {:noreply, socket}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :form, to_form(changeset))}
+    end
+  end
+
+  def handle_event("success-close", _params, socket) do
+    {:noreply, assign(socket, :is_labelled, false)}
   end
 
   def handle_event("canvas-click", %{"x" => x, "y" => y}, socket) do
