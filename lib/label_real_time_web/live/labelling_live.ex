@@ -36,14 +36,6 @@ defmodule LabelRealTimeWeb.LabellingLive do
     subimage_changeset = Subimages.change_subimage(%Subimage{})
     subimage_form = to_form(subimage_changeset)
 
-    # img =
-    #   0..18
-    #   |> Enum.map(&String.pad_leading("#{&1}", 2, "0"))
-    #   |> Enum.map(&"juggling-#{&1}.jpg")
-
-    # IO.inspect(images)
-    # IO.inspect(socket.assigns)
-
     # Get logged-in user from assigns and
     # obtain username and its color from email
     %{current_user: current_user} = socket.assigns
@@ -91,12 +83,6 @@ defmodule LabelRealTimeWeb.LabellingLive do
   end
 
   def handle_event("save-image", %{"subimage" => subimage_params}, socket) do
-    # Inspect socket
-    # IO.inspect(socket, label: "socket values")
-
-    # subimage_params should be something like: %{"label" => "Label 1"}
-    IO.inspect(subimage_params, label: "SUBIMAGE PARAMS:")
-
     # Get X and Y coordinates from two circles drawn
     my_x1 = Enum.at(socket.assigns.canvas.circles, 1).x |> trunc()
     my_y1 = Enum.at(socket.assigns.canvas.circles, 1).y |> trunc()
@@ -109,23 +95,13 @@ defmodule LabelRealTimeWeb.LabellingLive do
     # Read image from file
     images = socket.assigns.images
     {image_url, _} = List.pop_at(images, socket.assigns.current)
-    # IO.inspect(image_url, label: "Image_URL:")
 
     # Read current image
     current_image = Evision.imread("priv/static" <> image_url)
-    # IO.inspect(current_image)
 
     # select a roi, we can do it in several ways
     # remember that ranges in Elixir are inclusive
-    # dog_roi = current_image[[50..130, 80..150]]
-    # dog_roi = Evision.Mat.roi(current_image, {my_x1, my_y1, 60, 60})
     image_roi = Evision.Mat.roi(current_image, row_range, column_range)
-    # IO.inspect(dog_roi)
-
-    # TODO:
-    # I need to create an url, subimage_url, to add it to subimage_params and then store it in DB
-    # Something like this:
-    # IO.inspect(socket, label: "SOCKET:")
 
     # Create an url, for a subimage file, to add to subimage_params, and for DB field
     subimage_url =
@@ -136,9 +112,8 @@ defmodule LabelRealTimeWeb.LabellingLive do
         "#{socket.assigns.image_time_stamp}-#{subimage_params["label"]}.jpeg"
       ])
 
-    IO.inspect(subimage_url, label: "SUBIMAGE_URL")
+    # Add subimage_location to subimage_params
     subimage_params = Map.put(subimage_params, "subimage_location", subimage_url)
-    IO.inspect(subimage_params, label: "ALTERED PARAMS:")
 
     # Update timestamp in socket
     d = DateTime.utc_now()
@@ -172,7 +147,6 @@ defmodule LabelRealTimeWeb.LabellingLive do
 
         # Write roi to file
         # Note: I don't know why the liveview is restarting/reseting when Evision.imwrite() executes
-        # Evision.imwrite("priv/static/images/small_dog.jpeg", image_roi)
         Evision.imwrite("priv/static" <> subimage_url, image_roi)
 
         changeset = Subimages.change_subimage(%Subimage{})
@@ -196,7 +170,6 @@ defmodule LabelRealTimeWeb.LabellingLive do
   def handle_event("canvas-click", %{"x" => x, "y" => y}, socket) do
     canvas = socket.assigns.canvas
     key = socket.id
-    # payload = %{x: x, y: y}
 
     circle = CircleDrawer.new_circle(x, y)
     updated_canvas = CircleDrawer.add_circle(canvas, circle)
@@ -219,21 +192,6 @@ defmodule LabelRealTimeWeb.LabellingLive do
   end
 
   def handle_event("send_message", %{"message" => message}, socket) do
-    # IO.inspect(socket.assigns)
-
-    # # Read image from file
-    # current_image = Evision.imread("priv/static/images/dog.jpeg")
-    # # Inspect current_image
-    # IO.inspect(current_image)
-
-    # # select a roi
-    # dog_roi = current_image[[50..130, 80..150]]
-    # # Inspect roi
-    # IO.inspect(dog_roi)
-
-    # # Write roi to file
-    # Evision.imwrite("priv/static/images/small_dog.jpeg", dog_roi)
-
     updatePresence(socket.id, %{message: message})
     {:noreply, socket}
   end

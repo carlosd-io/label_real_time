@@ -1,7 +1,7 @@
 <%!-- <h3>Current user: <%= @current_user.email %></h3> --%>
-<h1>Browse Images and Start Labelling or</h1>
 <%!-- <pre><%= inspect(@presences, pretty: true) %></pre> --%>
 <%!-- <pre><%= inspect(@subimage_form, pretty: true) %></pre> --%>
+<h2>Browse Images and Start Labelling or</h2>
 
 <.link navigate={~p"/images"}>
   <div class="link-button"><.icon name="hero-arrow-left-circle" /> Back to Upload</div>
@@ -38,8 +38,6 @@
     k = loop/pause, &larr; = previous, &rarr; = next
   </div>
 
-  <%!-- <img src={"#{Enum.at(@images, @current)}"} /> --%>
-
   <svg
     id="circle-drawer"
     phx-hook="CircleDrawer"
@@ -48,7 +46,6 @@
     style="border: 1px solid blue"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <%!-- <image href={~p"/images/dog.jpeg"} x="0" y="0" height="224px" width="225px" /> --%>
     <image href={"#{Enum.at(@images, @current)}"} x="0" y="0" height="224px" width="225px" />
     <circle cx="40" cy="30" r="1" fill="purple" />
     <%= for presence <- @presences do %>
@@ -60,7 +57,6 @@
 
   <div class="footer">
     <div class="filename">
-      <%!-- <%= Enum.at(@images, @current) %> --%>
       <%= Enum.at(@images, @current) |> String.split("/") |> List.last() %>
     </div>
 
@@ -75,7 +71,6 @@
 <br />
 
 <.form for={@subimage_form} phx-submit="save-image">
-  <label for="subimage-input">Hi <%= @username %>, enter label</label>
   <.input
     id="subimage-input"
     field={@subimage_form[:label]}
@@ -86,7 +81,13 @@
 </.form>
 
 <.link navigate={~p"/labelling"}>
-  <div class="success-button" :if={@is_labelled} phx-click="success-close" >Saved successfully! &times</div>
+  <div :if={@is_labelled} class="success-button" phx-click="success-close">
+    Saved successfully! &times
+  </div>
+</.link>
+
+<.link navigate={~p"/subimages"}>
+  <div class="link-button">See all labelled images</div>
 </.link>
 
 <ul class="list-none" id="cursors" phx-hook="TrackClientCursor">

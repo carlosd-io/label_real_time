@@ -32,6 +32,7 @@ defmodule LabelRealTimeWeb.Router do
       on_mount: [{LabelRealTimeWeb.UserAuth, :ensure_authenticated}] do
       live "/images", ImagesLive
       live "/labelling", LabellingLive
+      live "/subimages", SubimagesLive
     end
   end
 

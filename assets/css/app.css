@@ -78,6 +78,7 @@ h3 {
     @apply text-center -mt-6 mb-6 text-lg font-medium text-slate-700;
 }
 
+
 /* File Uploads */
 
 #upload-images {
@@ -172,3 +173,4 @@ h3 {
 #upload-images #images .photo .name {
     @apply mt-2 text-base text-slate-600 font-medium;
 }
+
