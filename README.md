@@ -18,3 +18,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Source: https://github.com/phoenixframework/phoenix
 
   1_Ready_to_Start_Exporter
+  2_Ready_to_Start_ML_digits
