@@ -46,7 +46,7 @@
     style="border: 1px solid blue"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <image href={"#{Enum.at(@images, @current)}"} x="0" y="0" height="224px" width="225px" />
+    <image href={"#{Enum.at(@images, @current)}"} x="0" y="0" height="225px" width="225px" />
     <circle cx="40" cy="30" r="1" fill="purple" />
     <%= for presence <- @presences do %>
       <%= for %{x: x, y: y, r: r} <- presence.canvas.circles do %>
