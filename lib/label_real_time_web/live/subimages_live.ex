@@ -13,7 +13,10 @@ defmodule LabelRealTimeWeb.SubimagesLive do
     ~H"""
     <h1>List of Labelled Images</h1>
     <.link navigate={~p"/labelling"}>
-      <div class="link-button"><.icon name="hero-arrow-left-circle" /> Back to Label</div>
+      <div class="link-button">
+        <.icon name="hero-arrow-left-circle" />
+        Back to Label (there must be at least one image in the database)
+      </div>
     </.link>
     <.link navigate={~p"/images"}>
       <div class="link-button"><.icon name="hero-arrow-left-circle" /> Back to Upload</div>

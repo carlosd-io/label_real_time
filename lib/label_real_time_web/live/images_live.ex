@@ -17,7 +17,7 @@ defmodule LabelRealTimeWeb.ImagesLive do
         socket,
         :photos,
         accept: ~w(.png .jpeg .jpg),
-        max_entries: 3,
+        max_entries: 5,
         max_file_size: 10_000_000
       )
 
